@@ -29,7 +29,16 @@ const noteSchema=mongoose.Schema({
         ref:'User',
         required:true
     },
-    timestamps:true
+    timestamps: {
+        createdAt: {
+            type: Date,
+            default: Date.now
+        },
+        updatedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }
 })
 
 module.exports = mongoose.model('Note', noteSchema);

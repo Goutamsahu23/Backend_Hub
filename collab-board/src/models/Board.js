@@ -18,7 +18,16 @@ const boardSchema=mongoose.Schema({
         type:Number,
         default:1
     },
-    timestamps:true
+    timestamps:{
+        createdAt: {
+            type: Date,
+            default: Date.now
+        },
+        updatedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }
 })
 
 module.exports = mongoose.model('Board', boardSchema);

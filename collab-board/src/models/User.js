@@ -14,7 +14,16 @@ const userSchema=new mongoose.Schema({
         type:String,
         required:true
     },
-    timestamps: true 
+    timestamps: {
+        createdAt: {
+            type: Date,
+            default: Date.now
+        },
+        updatedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }
 
 })
 

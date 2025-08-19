@@ -1,6 +1,7 @@
 const express=require('express');
 const dotenv=require('dotenv');
 const connectDB=require('./config/db');
+const authRoutes = require('./routes/authRoutes');
 
 
 const { WebSocketServer } = require('ws');
@@ -12,6 +13,7 @@ connectDB();
 const app=express();
 app.use(express.json());
 // app.use(cors());
+app.use('/api/auth', authRoutes);
 
 // http server
 const PORT=process.env.PORT || 5000;
