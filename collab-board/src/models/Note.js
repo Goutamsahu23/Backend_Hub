@@ -2,7 +2,7 @@ const mongoose=require('mongoose');
 
 const noteSchema=mongoose.Schema({
     text:{
-        type:string,
+        type:String,
         required:true
     },
     boardId:{

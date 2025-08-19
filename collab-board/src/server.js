@@ -3,7 +3,7 @@ const dotenv=require('dotenv');
 const connectDB=require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const boardRoutes = require('./routes/boardRoutes');
-
+const noteRoutes = require('./routes/noteRoutes');
 
 
 const { WebSocketServer } = require('ws');
@@ -17,7 +17,7 @@ app.use(express.json());
 // app.use(cors());
 app.use('/api/auth', authRoutes);
 app.use('/api/boards', boardRoutes);
-
+app.use('/api/boards/:boardId/notes', noteRoutes);
 
 // http server
 const PORT=process.env.PORT || 5000;
