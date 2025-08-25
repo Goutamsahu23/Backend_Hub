@@ -27,22 +27,55 @@ const server=app.listen(PORT,()=>{
 
 // WebSocket server
 const wss = new WebSocketServer({ server });
+const activeBoards = {}; 
 
-wss.on('connection',(ws)=>{
-    console.log('New client connected');
+wss.on("connection", (ws) => {
+  console.log("🔌 WebSocket client connected");
 
-    ws.on('message',(message)=>{
-        console.log(`Received message: ${message.toString()}`);
-        // Broadcast the message to all connected clients
-        wss.clients.forEach((client) => {
-            if (client.readyState === WebSocketServer.OPEN) {
-                client.send(message);
-            }
-        });
-    });
+  ws.on("message", (message) => {
+    try {
+      const data = JSON.parse(message.toString());
 
-    ws.on('close',()=>{
-        console.log('Client disconnected');
-    });
-})
+      switch (data.type) {
+        case "join_board":
+          if (!activeBoards[data.boardId]) activeBoards[data.boardId] = [];
+          activeBoards[data.boardId].push(ws);
+          ws.boardId = data.boardId;
+          console.log(`👥 User joined board ${data.boardId}`);
+          break;
+
+        case "leave_board":
+          if (activeBoards[data.boardId]) {
+            activeBoards[data.boardId] =
+              activeBoards[data.boardId].filter(client => client !== ws);
+            console.log(`🚪 User left board ${data.boardId}`);
+          }
+          break;
+
+        case "note_created":
+        case "note_updated":
+        case "note_deleted":
+        case "board_updated":
+          if (activeBoards[ws.boardId]) {
+            activeBoards[ws.boardId].forEach(client => {
+              if (client !== ws && client.readyState === 1) {
+                client.send(JSON.stringify(data));
+              }
+            });
+          }
+          break;
+      }
+    } catch (err) {
+      console.error("❌ WS error:", err.message);
+    }
+  });
+
+  ws.on("close", () => {
+    if (ws.boardId && activeBoards[ws.boardId]) {
+      activeBoards[ws.boardId] =
+        activeBoards[ws.boardId].filter(client => client !== ws);
+      console.log(`❌ User disconnected from board ${ws.boardId}`);
+    }
+  });
+});
 
