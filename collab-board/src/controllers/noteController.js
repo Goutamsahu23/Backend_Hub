@@ -33,6 +33,7 @@ async function updateNote(req, res) {
   note.position.x = x ?? note.position.x;
   note.position.y = y ?? note.position.y;
   note.color = color ?? note.color;
+  note.version += 1;
 
   await note.save();
   res.json(note);

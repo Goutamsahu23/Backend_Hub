@@ -38,7 +38,8 @@ const noteSchema=mongoose.Schema({
             type: Date,
             default: Date.now
         }
-    }
+    },
+    version: { type: Number, default: 1 }
 })
 
 module.exports = mongoose.model('Note', noteSchema);
