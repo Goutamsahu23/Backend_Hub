@@ -2,10 +2,13 @@ const express=require('express');
 const dotenv=require('dotenv');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const Redis = require('ioredis');
 const connectDB=require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const boardRoutes = require('./routes/boardRoutes');
 const noteRoutes = require('./routes/noteRoutes');
+const activityRoutes=require('./routes/activityRoutes')
+
 
 
 const { WebSocketServer } = require('ws');
@@ -15,6 +18,7 @@ dotenv.config()
 connectDB();
 
 const app=express();
+
 app.use(express.json());
 app.use(helmet());
 
@@ -26,6 +30,7 @@ app.use(rateLimit({
 app.use('/api/auth', authRoutes);
 app.use('/api/boards', boardRoutes);
 app.use('/api/boards/:boardId/notes', noteRoutes);
+app.use('/api/boards', activityRoutes);
 
 // http server
 const PORT=process.env.PORT || 5000;
@@ -36,6 +41,24 @@ const server=app.listen(PORT,()=>{
 // WebSocket server
 const wss = new WebSocketServer({ server });
 const activeBoards = {}; 
+
+// // ✅ Redis Pub/Sub Setup
+// const pub = new Redis(process.env.REDIS_URL || "redis://127.0.0.1:6379");
+// const sub = new Redis(process.env.REDIS_URL || "redis://127.0.0.1:6379");
+
+// // Subscribe to channel for board events
+// sub.subscribe("board-events");
+
+// sub.on("message", (channel, message) => {
+//   const data = JSON.parse(message);
+//   if (activeBoards[data.boardId]) {
+//     activeBoards[data.boardId].forEach(client => {
+//       if (client.readyState === 1) {
+//         client.send(JSON.stringify(data));
+//       }
+//     });
+//   }
+// });
 
 wss.on("connection", (ws) => {
   console.log("🔌 WebSocket client connected");
