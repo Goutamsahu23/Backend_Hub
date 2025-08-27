@@ -1,5 +1,6 @@
 const Note = require('../models/Note');
 const Board = require('../models/Board');
+const { logActivity } = require('./activityController');
 
 // Get all notes in a board
 async function getNotes(req, res) {
@@ -19,6 +20,13 @@ async function createNote(req, res) {
     createdBy: req.user._id
   });
 
+  await logActivity({
+    boardId: note.boardId,
+    userId: req.user._id,
+    action: "note_created",
+    details: { noteId: note._id, text: note.text }
+  });
+
   res.json(note);
 }
 
@@ -36,6 +44,15 @@ async function updateNote(req, res) {
   note.version += 1;
 
   await note.save();
+
+  await logActivity({
+    boardId: note.boardId,
+    userId: req.user._id,
+    action: "note_updated",
+    details: { noteId: note._id, text: note.text }
+  });
+
+
   res.json(note);
 }
 
@@ -45,6 +62,13 @@ async function deleteNote(req, res) {
   if (!note) return res.status(404).json({ error: "Note not found" });
 
   await note.deleteOne();
+
+  await logActivity({
+    boardId: note.boardId,
+    userId: req.user._id,
+    action: "note_deleted",
+    details: { noteId: note._id, text: note.text }
+  });
   res.json({ message: "Note deleted" });
 }
 

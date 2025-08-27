@@ -1,5 +1,6 @@
 const Board = require('../models/Board');
 const User = require('../models/User');
+const { logActivity } = require('./activityController');
 
 // Create board
 async function createBoard(req, res) {
@@ -56,6 +57,13 @@ async function inviteUser(req, res) {
     board.members.push(user._id);
     await board.save();
   }
+
+  await logActivity({
+  boardId: board._id,
+  userId: req.user._id,
+  action: "user_invited",
+  details: { invitedEmail: email }
+});
 
   res.json({ message: "User invited", board });
 }
